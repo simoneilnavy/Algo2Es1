@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import upo.graph.base.Edge;
 import upo.graph.base.Graph;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class IncidListDirTest {
@@ -131,5 +135,75 @@ class IncidListDirTest {
         assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(1,2)));
         assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(2,1)));
         assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0,1)));
+    }
+
+    @Test
+    void testgetEdges() {
+
+        assertTrue(this.graph.getEdges().isEmpty());
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        assertTrue(this.graph.getEdges().contains(Edge.getEdgeByVertexes(0,1)));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,3));
+        assertTrue(this.graph.getEdges().contains(Edge.getEdgeByVertexes(0,1))
+                &&this.graph.getEdges().contains(Edge.getEdgeByVertexes(0,2))
+                &&this.graph.getEdges().contains(Edge.getEdgeByVertexes(1,3)));
+    }
+
+    @Test
+    void testcontainsVertex() {
+
+        assertFalse(this.graph.containsVertex(0));
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        assertTrue(this.graph.containsVertex(0));
+        assertTrue(this.graph.containsVertex(3));
+    }
+
+    @Test
+    void testremoveVertex() {
+
+        Exception exception = assertThrows(NoSuchElementException.class, () -> {
+            this.graph.removeVertex(0);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(3,4));
+
+        assertTrue(this.graph.containsVertex(0)&&this.graph.containsVertex(1));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0,1)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0,2)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(3,4)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(1,2)));
+        assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(1,3)));
+
+        this.graph.removeVertex(0);
+        assertTrue(this.graph.containsVertex(0)&&this.graph.containsVertex(1));
+        assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(0,2)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0,1)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(2,3)));
+
     }
 }

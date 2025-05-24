@@ -12,88 +12,123 @@ import java.util.*;
 
 public class IncidListDir implements Graph {
 
-    protected List<HashMap<Integer,List<Integer>>> grafo;
-    protected List<HashMap<Integer,Edge>> archi;
-    protected int vertexN=0,edgeN=0;
+    protected List<List<Integer>> grafo;
+    protected List<Edge> archi;
 
 
     public IncidListDir()
     {
         //vertices
-        this.grafo = new ArrayList<HashMap<Integer,List<Integer>>>();
+        this.grafo = new ArrayList<List<Integer>>();
         //Edge
-        this.archi = new ArrayList<HashMap<Integer,Edge>>();
+        this.archi = new ArrayList<Edge>();
     }
 
     @Override
     public int addVertex() {
-        HashMap<Integer,List<Integer>> mappa = new HashMap<Integer,List<Integer>>();
-        mappa.put(vertexN,new ArrayList<Integer>());
-        this.grafo.add(mappa);
-        vertexN++;
-        return 0;
+        List<Integer> list = new ArrayList<>();
+        this.grafo.add(list);
+        return this.grafo.indexOf(list);
     }
 
     @Override
     public Set<Integer> getVertices() {
-
-        Set<Integer> val = new HashSet<>();
-
-        for(HashMap<Integer,List<Integer>> mappa : this.grafo){
-            val.addAll(mappa.keySet());
+        List<Integer> sup = new ArrayList<>();
+        for(List<Integer> list : this.grafo) {
+            sup.add(this.grafo.indexOf(list));
         }
-        return val;
+        return Set.copyOf(sup);
     }
 
     @Override
     public Set<Edge> getEdges() {
-        return Set.of();
+        return Set.copyOf(this.archi);
     }
 
     @Override
     public boolean containsVertex(Integer integer) {
-        return false;
+
+        if(integer>=this.grafo.size()) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public void removeVertex(Integer integer) throws NoSuchElementException {
 
+
+        if(!this.containsVertex(integer)) {
+            throw new NoSuchElementException("Vertice non presente");
+        }
+
+        this.archi.removeIf(arco -> arco.getSource().intValue() == integer.intValue() || arco.getTarget().intValue() == integer.intValue());
+        for(Edge arco : this.archi)
+        {
+
+
+            if(arco.getSource().intValue() > integer.intValue()) {
+
+                Edge newEdge = Edge.getEdgeByVertexes(arco.getSource()-1, arco.getTarget());
+                this.archi.set(this.archi.indexOf(arco), newEdge);
+                arco = newEdge;
+            }
+            if(arco.getTarget().intValue() > integer.intValue()) {
+                Edge newEdge = Edge.getEdgeByVertexes(arco.getSource(), arco.getTarget()-1);
+                this.archi.set(this.archi.indexOf(arco), newEdge);
+            }
+        }
+        this.grafo.remove(integer.intValue());
     }
 
     @Override
     public void addEdge(Edge edge) throws IllegalArgumentException {
 
-        if(edge.getSource()>=this.vertexN || edge.getTarget()>=this.vertexN) {
+        if(edge.getSource()>=this.grafo.size() || edge.getTarget()>=this.grafo.size()) {
             throw new IllegalArgumentException("Vertice non presente");
         }
-
-        HashMap<Integer,Edge> mappa = new HashMap<>();
-
-        mappa.put(edgeN,edge);
-        edgeN++;
-        this.archi.add(mappa);
+        this.archi.add(edge);
+        this.grafo.get(edge.getSource()).add(this.archi.indexOf(edge));
     }
 
     @Override
     public boolean containsEdge(Edge edge) throws IllegalArgumentException {
 
-        if(edge.getSource()>=vertexN || edge.getTarget()>=vertexN) {
-            throw new IllegalArgumentException("Vertice non presente");
+        if(!this.archi.contains(edge)) {
+            return false;
         }
-
-        for(HashMap<Integer,Edge> mappa : this.archi) {
-            for(Edge entry : mappa.values()){
-                if(entry.getSource().equals(edge.getSource()) && entry.getTarget().equals(edge.getTarget())){
-                    return true;
-                }
-            }
-        }
-        return false;
+        return true;
     }
 
     @Override
     public void removeEdge(Edge edge) throws IllegalArgumentException, NoSuchElementException {
+/*
+        //non ho determinato necessario inserire un try catch perchè la finzione è throwable
+        //inoltre non devo nemmeno aggiungere il throw dell'IllegalArgumentException
+        //perchè il controllo è effettuato da containsEdge che nel caso fà il throw e removeEdge lo gira alla funzione chiamante
 
+            if(!containsEdge(edge)) {
+                throw new NoSuchElementException("Arco non presente");
+            }
+
+            Integer ref=0;
+
+            for(HashMap<Integer,Edge> mappa : this.archi) {
+                if(mappa.containsValue(edge)){
+                   ref= (Integer) mappa.keySet().toArray()[0];
+                    break;
+                }
+            }
+
+            for(HashMap<Integer,List<Integer>> val : this.grafo){
+                if(val.containsKey(edge.getSource())){
+                    for(List<Integer> list : val.values()){
+                        list.remove(edgeN);
+                    }
+                }
+            }
+
+*/
     }
 
     @Override
