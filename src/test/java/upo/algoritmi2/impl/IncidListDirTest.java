@@ -135,6 +135,7 @@ class IncidListDirTest {
         assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(1,2)));
         assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(2,1)));
         assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0,1)));
+        assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(1,2)));
     }
 
     @Test
@@ -206,4 +207,68 @@ class IncidListDirTest {
         assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(2,3)));
 
     }
+
+    @Test
+    void testremoveEdge() {
+
+        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.removeEdge(Edge.getEdgeByVertexes(12,0));
+        });
+
+        String actualMessage2 = exception2.getMessage();
+
+        assertTrue(actualMessage2.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        Exception exception = assertThrows(NoSuchElementException.class, () -> {
+            this.graph.removeEdge(Edge.getEdgeByVertexes(0,1));
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Arco non presente"));
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        int oldSize= this.graph.archi.size();
+
+        this.graph.removeEdge(Edge.getEdgeByVertexes(0,1));
+
+        assertEquals(oldSize-1,this.graph.archi.size());
+    }
+
+    @Test
+    void testgetAdjacent() {
+
+        Exception exception = assertThrows(NoSuchElementException.class, () -> {
+            this.graph.getAdjacent(1);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        assertTrue(this.graph.getAdjacent(0).isEmpty());
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(3,4));
+
+        assertTrue(this.graph.getAdjacent(0).contains(1)&&this.graph.getAdjacent(0).contains(2));
+        assertTrue(this.graph.getAdjacent(1).contains(2));
+        assertFalse(this.graph.getAdjacent(1).contains(3));
+
+    }
+
+
+
 }

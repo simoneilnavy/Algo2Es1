@@ -94,16 +94,18 @@ public class IncidListDir implements Graph {
     @Override
     public boolean containsEdge(Edge edge) throws IllegalArgumentException {
 
-        if(!this.archi.contains(edge)) {
-            return false;
+        if(!containsVertex(edge.getSource()) || !containsVertex(edge.getTarget())) {
+            throw new IllegalArgumentException("Vertice non presente");
         }
-        return true;
+
+
+        return this.archi.contains(edge);
     }
 
     @Override
     public void removeEdge(Edge edge) throws IllegalArgumentException, NoSuchElementException {
-/*
-        //non ho determinato necessario inserire un try catch perchè la finzione è throwable
+
+        //non ho determinato necessario inserire un try catch perchè la funzione è throwable
         //inoltre non devo nemmeno aggiungere il throw dell'IllegalArgumentException
         //perchè il controllo è effettuato da containsEdge che nel caso fà il throw e removeEdge lo gira alla funzione chiamante
 
@@ -111,29 +113,27 @@ public class IncidListDir implements Graph {
                 throw new NoSuchElementException("Arco non presente");
             }
 
-            Integer ref=0;
+            Integer index = this.archi.indexOf(edge);
 
-            for(HashMap<Integer,Edge> mappa : this.archi) {
-                if(mappa.containsValue(edge)){
-                   ref= (Integer) mappa.keySet().toArray()[0];
-                    break;
-                }
-            }
-
-            for(HashMap<Integer,List<Integer>> val : this.grafo){
-                if(val.containsKey(edge.getSource())){
-                    for(List<Integer> list : val.values()){
-                        list.remove(edgeN);
-                    }
-                }
-            }
-
-*/
+            this.grafo.get(edge.getSource()).remove(index);
+            this.archi.remove(edge);
     }
 
     @Override
     public Set<Integer> getAdjacent(Integer integer) throws NoSuchElementException {
-        return Set.of();
+
+        if(!containsVertex(integer)) {
+            throw new NoSuchElementException("Vertice non presente");
+        }
+
+        List<Integer> vertex = this.grafo.get(integer);
+        List<Integer> sup = new ArrayList<>();
+
+        for(Integer val : vertex) {
+            sup.add(this.archi.get(val).getTarget());
+        }
+
+        return Set.copyOf(sup);
     }
 
     @Override
