@@ -138,6 +138,14 @@ public class IncidListDir implements Graph {
 
     @Override
     public boolean isAdjacent(Integer integer, Integer integer1) throws IllegalArgumentException {
+        if(!containsVertex(integer) || !containsVertex(integer1)) {
+            throw new IllegalArgumentException("Vertice non presente");
+        }
+        for(Edge arco : this.archi) {
+            if(arco.getSource().intValue() == integer.intValue() && arco.getTarget().intValue() == integer1.intValue()) {
+                return true;
+            }
+        }
         return false;
     }
 

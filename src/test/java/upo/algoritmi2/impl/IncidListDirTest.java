@@ -269,6 +269,26 @@ class IncidListDirTest {
 
     }
 
+    @Test
+    void testisAdj() {
+
+        this.graph.addVertex();
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.isAdjacent(0,1);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
 
 
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        assertTrue(this.graph.isAdjacent(0,1));
+        assertFalse(this.graph.isAdjacent(1,0));
+        assertFalse(this.graph.isAdjacent(0,2));
+    }
 }
