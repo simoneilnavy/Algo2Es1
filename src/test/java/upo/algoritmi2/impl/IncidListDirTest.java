@@ -291,4 +291,50 @@ class IncidListDirTest {
         assertFalse(this.graph.isAdjacent(1,0));
         assertFalse(this.graph.isAdjacent(0,2));
     }
+
+    @Test
+    void testSize() {
+        assertEquals(0,this.graph.size());
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        assertEquals(2,this.graph.size());
+    }
+
+    @Test
+    void testisDirected() {
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+        assertTrue(this.graph.isDirected());
+        this.graph.addEdge(Edge.getEdgeByVertexes(3,0));
+        assertTrue(this.graph.isDirected());
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,3));
+        assertFalse(this.graph.isDirected());
+    }
+
+    @Test
+    void testisCyclic() {
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+        assertFalse(this.graph.isCyclic());
+        this.graph.addEdge(Edge.getEdgeByVertexes(3,0));
+        assertTrue(this.graph.isCyclic());
+
+
+    }
 }

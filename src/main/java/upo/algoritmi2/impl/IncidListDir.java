@@ -151,22 +151,79 @@ public class IncidListDir implements Graph {
 
     @Override
     public int size() {
-        return 0;
-    }
+        return this.grafo.size();    }
 
     @Override
     public boolean isDirected() {
-        return false;
+
+        List<Integer> targetlist = new ArrayList<>();
+
+
+        for(List<Integer> list : this.grafo) {
+            for(Integer val : list) {
+               targetlist.add(this.archi.get(val).getTarget());
+            }
+            for(Integer val : targetlist) {
+
+                    for (Integer val1 : this.grafo.get(val)) {
+                        if(this.archi.get(val1).getTarget()==this.grafo.indexOf(list))
+                        {
+                            return false;
+                        }
+                    }
+            }
+            targetlist.clear();
+        }
+        return true;
+
+
     }
 
     @Override
     public boolean isCyclic() {
+        int i=0;
+        int oi=0;
+        int ooi =0;
+        List<List<Integer>> adjIn = new ArrayList<>();
+        List<Integer> supadj = new ArrayList<>();
+        HashMap<Integer,Integer> from = new HashMap<>();
+        for(List<Integer> list : this.grafo) {
+            try {
+                supadj.addAll(getAdjacent(this.grafo.indexOf(list)));
+                adjIn.add(new ArrayList<>(supadj));
+                supadj.clear();
+            }catch (NoSuchElementException e) {}
+        }
+        List<Integer> pass = new ArrayList<>();
+        while (pass.size()<size()+1) {
+            if(!pass.contains(i)) {
+                pass.add(i);
+                    while(adjIn.get(i).isEmpty()) {
+                        if(pass.size()==size()){
+                            return false;
+                        }
+                        oi=i;
+                        i=from.get(i);
+                        for(List<Integer> list : adjIn) {
+                            if(list.contains(oi)) {
+                                list.remove(list.indexOf(oi));
+                            }
+                        }
+                    }
+                    ooi=i;
+                    i=adjIn.get(i).get(0);
+                    from.put(i,ooi);
+            }
+            else{
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean isDAG() {
-        return false;
+        return !isCyclic();
     }
 
     @Override
