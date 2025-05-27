@@ -4,10 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import upo.graph.base.Edge;
 import upo.graph.base.Graph;
+import upo.graph.base.VisitResult;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -334,7 +336,90 @@ class IncidListDirTest {
         assertFalse(this.graph.isCyclic());
         this.graph.addEdge(Edge.getEdgeByVertexes(3,0));
         assertTrue(this.graph.isCyclic());
+    }
+
+    @Test
+    void testisDAG() {
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+        assertTrue(this.graph.isDAG());
+        this.graph.addEdge(Edge.getEdgeByVertexes(3,0));
+        assertFalse(this.graph.isDAG());
+    }
+
+    @Test
+    void testgetBFSTree() {
+
+        VisitResult visita;
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.getBFSTree(0);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
 
 
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
+
+        visita=this.graph.getBFSTree(0);
+
+        for(Integer val : this.graph.getVertices()){
+            assertEquals(VisitResult.Color.BLACK, visita.getColor(val));
+        }
+    }
+
+    @Test
+    void testgetDFSTree() {
+        VisitResult visita;
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.getDFSTree(0);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
+
+        visita=this.graph.getDFSTree(0);
+
+        for(Integer val : this.graph.getVertices()){
+            assertEquals(VisitResult.Color.BLACK, visita.getColor(val));
+        }
     }
 }

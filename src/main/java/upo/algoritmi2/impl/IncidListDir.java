@@ -192,7 +192,10 @@ public class IncidListDir implements Graph {
                 supadj.addAll(getAdjacent(this.grafo.indexOf(list)));
                 adjIn.add(new ArrayList<>(supadj));
                 supadj.clear();
-            }catch (NoSuchElementException e) {}
+            }catch (NoSuchElementException e)
+            {
+                return false;
+            }
         }
         List<Integer> pass = new ArrayList<>();
         while (pass.size()<size()+1) {
@@ -228,12 +231,63 @@ public class IncidListDir implements Graph {
 
     @Override
     public VisitResult getBFSTree(Integer integer) throws UnsupportedOperationException, IllegalArgumentException {
-        return null;
+
+        VisitResult visita = new VisitResult(this);
+        List<Integer> coda = new ArrayList<>();
+        List<Integer> adj = new ArrayList<>();
+
+
+        if(!this.containsVertex(integer)) {
+            throw new IllegalArgumentException("Vertice non presente");
+        }
+        coda.add(integer);
+
+        while(!coda.isEmpty()){
+            adj.addAll(getAdjacent(coda.getFirst()));
+            for(Integer val1 : adj) {
+                if(!visita.getColor(val1).equals(VisitResult.Color.GRAY) || !visita.getColor(val1).equals(VisitResult.Color.BLACK)) {
+                    visita.setColor(val1, VisitResult.Color.GRAY);
+                    coda.add(val1);
+                }
+            }
+            adj.clear();
+            visita.setColor(coda.getFirst(), VisitResult.Color.BLACK);
+            coda.remove(0);
+        }
+        return visita;
     }
 
     @Override
     public VisitResult getDFSTree(Integer integer) throws UnsupportedOperationException, IllegalArgumentException {
-        return null;
+        VisitResult visita = new VisitResult(this);
+        List<Integer> stack = new ArrayList<>();
+        List<Integer> adj = new ArrayList<>();
+        boolean flag=false;
+
+        if(!this.containsVertex(integer)) {
+            throw new IllegalArgumentException("Vertice non presente");
+        }
+
+        stack.add(integer);
+
+        while(!stack.isEmpty()){
+            flag=false;
+            adj.addAll(getAdjacent(stack.getLast()));
+            for(Integer val1 : adj) {
+                if(visita.getColor(val1).equals(VisitResult.Color.WHITE)) {
+                    visita.setColor(val1, VisitResult.Color.GRAY);
+                    stack.add(val1);
+                    flag=true;
+                }
+            }
+            if(!flag) {
+                visita.setColor(stack.getLast(), VisitResult.Color.BLACK);
+                stack.remove(stack.getLast());
+            }
+            adj.clear();
+        }
+
+        return visita;
     }
 
     @Override
@@ -248,12 +302,12 @@ public class IncidListDir implements Graph {
 
     @Override
     public Integer[] topologicalSort() throws UnsupportedOperationException {
-        return new Integer[0];
+        return new Integer[0];//non implementabile
     }
 
     @Override
     public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
-        return Set.of();
+        return Set.of();//non implementabile
     }
 
     @Override
