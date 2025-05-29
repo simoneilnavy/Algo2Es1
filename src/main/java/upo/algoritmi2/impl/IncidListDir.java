@@ -82,7 +82,7 @@ public class IncidListDir implements Graph {
     }
 
     @Override
-    public void addEdge(Edge edge) throws IllegalArgumentException {
+    public void  addEdge(Edge edge) throws IllegalArgumentException {
 
         if(edge.getSource()>=this.grafo.size() || edge.getTarget()>=this.grafo.size()) {
             throw new IllegalArgumentException("Vertice non presente");
@@ -292,40 +292,167 @@ public class IncidListDir implements Graph {
 
     @Override
     public VisitResult getDFSTOTForest(Integer integer) throws UnsupportedOperationException, IllegalArgumentException {
-        return null;
+
+       VisitResult visita = getDFSTree(integer);
+       VisitResult visita2;
+
+       for(int val=0;val<size();val++) {
+           if(visita.getColor(val).equals(VisitResult.Color.WHITE)) {
+               visita2 = getDFSTree(val);
+               for(int j=0;j<size();j++){
+                   if(visita.getColor(j).equals(VisitResult.Color.WHITE)&&visita2.getColor(j).equals(VisitResult.Color.BLACK)) {
+                       visita.setColor(j, VisitResult.Color.BLACK);
+                   }
+               }
+           }
+       }
+       return visita;
     }
 
     @Override
     public VisitResult getDFSTOTForest(Integer[] integers) throws UnsupportedOperationException, IllegalArgumentException {
-        return null;
+        VisitResult visita = getDFSTree(integers[0]);
+        VisitResult visita2;
+
+        for(Integer val : integers) {
+            if(visita.getColor(val).equals(VisitResult.Color.WHITE)) {
+                visita2 = getDFSTree(val);
+                for(Integer j : integers){
+                    if(visita.getColor(j).equals(VisitResult.Color.WHITE)&&visita2.getColor(j).equals(VisitResult.Color.BLACK)) {
+                        visita.setColor(j, VisitResult.Color.BLACK);
+                    }
+                }
+            }
+        }
+        return visita;
     }
 
     @Override
     public Integer[] topologicalSort() throws UnsupportedOperationException {
-        return new Integer[0];//non implementabile
+        List<Integer> sort= new ArrayList<>();
+        boolean flag=false;
+        int val =this.size()-1;
+        Integer j=0;
+
+        List<Integer> copy = new ArrayList<>();
+        for(List<Integer> list : this.grafo) {
+            copy.add(j);
+            j++;
+        }
+        List<Edge> copyEdge = new ArrayList<>(this.archi);
+
+        while(!copy.isEmpty()) {
+            if (!sort.contains(val)) {
+                for (Edge arco : copyEdge) {
+                    if (arco.getTarget().intValue() == val) {
+                        flag = true;
+                    }
+                }
+                if (!flag) {
+                    sort.add(val);
+                    copy.remove(copy.indexOf(val));
+                    for (Edge arco : copyEdge) {
+                        if (arco.getSource().intValue() == val) {
+                            copyEdge.set(copyEdge.indexOf(arco), Edge.getEdgeByVertexes(arco.getSource(), arco.getSource()));
+                        }
+                    }
+                }
+            }
+                flag = false;
+                if (val == 0) {
+                    val = this.size() - 1;
+                } else {
+                    val--;
+                }
+
+        }
+        return sort.toArray(new Integer[0]);
     }
 
     @Override
     public Set<Set<Integer>> stronglyConnectedComponents() throws UnsupportedOperationException {
-        return Set.of();//non implementabile
+        Set<Set<Integer>> sccs = new HashSet<>();
+        int n = this.size();
+        if (n == 0) {
+            return Set.of();
+        }
+
+        Stack<Integer> stack = new Stack<>();
+        boolean[] visited = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+
+                Stack<Integer> tempStack = new Stack<>();
+                tempStack.push(i);
+                while (!tempStack.isEmpty()) {
+                    Integer current = tempStack.peek();
+                    if (!visited[current]) {
+                        visited[current] = true;
+                        for (Integer neighbor : getAdjacent(current)) {
+                            if (!visited[neighbor]) {
+                                tempStack.push(neighbor);
+                            }
+                        }
+                    } else {
+                        tempStack.pop();
+                        if (!stack.contains(current)) {
+                            stack.push(current);
+                        }
+                    }
+                }
+            }
+        }
+
+        List<List<Integer>> trasposto = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            trasposto.add(new ArrayList<>());
+        }
+        for (Edge edge : archi) {
+            trasposto.get(edge.getTarget()).add(edge.getSource());
+        }
+
+        visited = new boolean[n];
+        while (!stack.isEmpty()) {
+            Integer node = stack.pop();
+            if (!visited[node]) {
+                Set<Integer> scc = new HashSet<>();
+                Stack<Integer> tempStack = new Stack<>();
+                tempStack.push(node);
+                while (!tempStack.isEmpty()) {
+                    Integer current = tempStack.pop();
+                    if (!visited[current]) {
+                        visited[current] = true;
+                        scc.add(current);
+                        for (Integer neighbor : trasposto.get(current)) {
+                            if (!visited[neighbor]) {
+                                tempStack.push(neighbor);
+                            }
+                        }
+                    }
+                }
+                sccs.add(scc);
+            }
+        }
+
+        return sccs;
     }
 
     @Override
     public Set<Set<Integer>> connectedComponents() throws UnsupportedOperationException {
-        return Set.of();
+
+        throw(new UnsupportedOperationException("Operazione non supportata")) ;
     }
 
     @Override
-    public String toString(){
-        //quali sono i vertici e quali sono gli archi
-        /*
-        * graph{
-        *   nodes:0...6
-        *   0-1
-        *   0-3
-        * }
-        * */
-        return null;
+    public String toString() {
+        String result = "graph{\n";
+        result += "  nodes:0..." + (this.size() - 1) + "\n";
+        for (Edge edge : this.archi) {
+            result += "  " + edge.getSource() + "-" + edge.getTarget() + "\n";
+        }
+        result += "}";
+        return result;
     }
     @Override
     public boolean equals(Object o){

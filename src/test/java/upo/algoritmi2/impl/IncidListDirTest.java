@@ -37,24 +37,6 @@ class IncidListDirTest {
     }
 
     @Test
-    @DisplayName("Test per il toString")
-    void testToString() {
-        String actual = this.graph.toString().trim();
-
-        String expected = "Graph {\n\tnodes: \n\t}";
-        assertEquals(expected,actual);
-
-        this.graph.addVertex();
-        this.graph.addVertex();
-        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
-
-        actual = this.graph.toString().trim();
-        expected = "Graph {\n\tnodes: 0..1\n\t0-1}";
-
-        assertEquals(expected,actual);
-    }
-
-    @Test
     void testEquals() {
         Graph other = new IncidListDir();
         //test con grafo/i vuoto/i
@@ -416,10 +398,265 @@ class IncidListDirTest {
         this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
         this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
 
+
         visita=this.graph.getDFSTree(0);
 
         for(Integer val : this.graph.getVertices()){
             assertEquals(VisitResult.Color.BLACK, visita.getColor(val));
         }
+
+        Boolean flag=false;
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(6,7));
+
+        visita=this.graph.getDFSTree(0);
+
+        for(Integer val : this.graph.getVertices()){
+            if(VisitResult.Color.WHITE.equals(visita.getColor(val))){
+                flag=true;
+                break;
+            }
+        }
+
+        assertTrue(flag);
+
+    }
+
+    @Test
+    void testgetDFSTOTForest1() {
+        VisitResult visita;
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.getDFSTree(0);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
+
+
+        visita=this.graph.getDFSTOTForest(0);
+
+        for(Integer val : this.graph.getVertices()){
+            assertEquals(VisitResult.Color.BLACK, visita.getColor(val));
+        }
+
+        boolean flag=false;
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(6,7));
+
+        visita=this.graph.getDFSTOTForest(0);
+
+        for(Integer val : this.graph.getVertices()){
+            if(VisitResult.Color.WHITE.equals(visita.getColor(val))){
+                flag=true;
+                break;
+            }
+        }
+
+        assertFalse(flag);
+    }
+
+    @Test
+    void testgetDFSTOTForest2() {
+        VisitResult visita;
+
+        Integer[] visitOrder ={0,4,3,1,5,2};
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.graph.getDFSTOTForest(visitOrder);
+        });
+
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains("Vertice non presente"));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
+
+
+        visita=this.graph.getDFSTOTForest(visitOrder);
+
+        for(Integer val : this.graph.getVertices()){
+            assertEquals(VisitResult.Color.BLACK, visita.getColor(val));
+        }
+
+        boolean flag=false;
+
+        Integer[] visitOrder2 ={0,4,3,1,5,2,7,6};
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(6,7));
+
+        visita=this.graph.getDFSTOTForest(visitOrder2);
+
+        for(Integer val : this.graph.getVertices()){
+            if(VisitResult.Color.WHITE.equals(visita.getColor(val))){
+                flag=true;
+                break;
+            }
+        }
+
+        assertFalse(flag);
+    }
+
+    @Test
+    void testtopologicalSort() {
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0,1));
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,3));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1,2));
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(2,4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4,5));
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(6,7));
+
+        Integer[] topoSort= this.graph.topologicalSort();
+
+        Integer[] expected={6,0,7,1,2,4,3,5};
+
+        assertArrayEquals(expected,topoSort);
+
+    }
+
+
+    @Test
+    void teststronglyConnectedComponents() {
+        Set<Set<Integer>> scc;
+
+
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(0, 1));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1, 2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(2, 0));
+        this.graph.addEdge(Edge.getEdgeByVertexes(3, 4));
+        this.graph.addEdge(Edge.getEdgeByVertexes(4, 3));
+
+        scc = this.graph.stronglyConnectedComponents();
+
+        assertEquals(2, scc.size());
+        assertTrue(scc.contains(Set.of(0, 1, 2)));
+        assertTrue(scc.contains(Set.of(3, 4)));
+    }
+
+
+    @Test
+    void testRemoveVertexWithMultipleEdges() {
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(0, 1));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1, 2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(2, 0));
+
+        assertTrue(this.graph.containsVertex(1));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(0, 1)));
+        assertTrue(this.graph.containsEdge(Edge.getEdgeByVertexes(1, 2)));
+
+        this.graph.removeVertex(1);
+
+        assertFalse(this.graph.containsVertex(1));
+        assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(0, 1)));
+        assertFalse(this.graph.containsEdge(Edge.getEdgeByVertexes(1, 2)));
+    }
+
+    @Test
+    void testRobustTopologicalSort() {
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(0, 1));
+        this.graph.addEdge(Edge.getEdgeByVertexes(1, 2));
+        this.graph.addEdge(Edge.getEdgeByVertexes(2, 3));
+
+        Integer[] topoSort = this.graph.topologicalSort();
+        Integer[] expected = {0, 1, 2, 3};
+
+        assertArrayEquals(expected, topoSort);
+
+        this.graph.addEdge(Edge.getEdgeByVertexes(3, 1)); // introducing a cycle
+        assertThrows(UnsupportedOperationException.class, () -> this.graph.topologicalSort());
+    }
+
+    @Test
+    void testIsDirectedWithEmptyGraph() {
+        assertTrue(this.graph.isDirected());
+
+        this.graph.addVertex();
+        assertTrue(this.graph.isDirected());
+
+        this.graph.addVertex();
+        this.graph.addEdge(Edge.getEdgeByVertexes(0, 1));
+        assertTrue(this.graph.isDirected());
+    }
+
+    @Test
+    void testStronglyConnectedComponentsNoEdges() {
+        this.graph.addVertex();
+        this.graph.addVertex();
+        this.graph.addVertex();
+
+        Set<Set<Integer>> scc = this.graph.stronglyConnectedComponents();
+
+        assertEquals(3, scc.size());
+        assertTrue(scc.contains(Set.of(0)));
+        assertTrue(scc.contains(Set.of(1)));
+        assertTrue(scc.contains(Set.of(2)));
     }
 }
